@@ -1,0 +1,6 @@
+--- RICEVUTA ORDINE 2 ---
+NOME: Burger  | Prezzo: 10.0 euro
+NOME: Burger  | Prezzo: 10.0 euro
+NOME: Burger  | Prezzo: 10.0 euro
+---------------------------
+TOTALE DA PAGARE: 30.0 euro

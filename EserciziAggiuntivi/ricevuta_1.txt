@@ -1,0 +1,6 @@
+--- RICEVUTA ORDINE 1 ---
+NOME: margherita  | Prezzo: 5.0 euro
+NOME: diavola  | Prezzo: 7.199999999999999 euro
+NOME: Burger  | Prezzo: 10.0 euro
+---------------------------
+TOTALE DA PAGARE: 22.2 euro

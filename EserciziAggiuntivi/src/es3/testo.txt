@@ -1,0 +1,69 @@
+SIMULAZIONE D'ESAME 3: FOOD DELIVERY SYSTEM
+
+OBIETTIVO:
+Modellare il backend di un'app di consegna cibo (stile JustEat/Glovo).
+Il sistema deve permettere di creare un ordine, aggiungere piatti di tipo diverso (che hanno regole di prezzo diverse) e generare uno scontrino finale su file.
+
+REQUISITI ARCHITETTURALI E PATTERN:
+
+1. DOMINIO & POLIMORFISMO (Entity):
+   - Classe Astratta 'Piatto':
+     . Attributi: nome (String), prezzoBase (double).
+     . Metodo Astratto: double getPrezzoFinale().
+     . Implementa toString() per stampare "Nome: Prezzo".
+   - Sottoclasse 'Pizza':
+     . Attributo: boolean isMaxi.
+     . Logica Prezzo: Se è Maxi, il prezzo finale è prezzoBase + 20%. Altrimenti è uguale al prezzoBase.
+   - Sottoclasse 'Panino':
+     . Attributo: int numeroIngredientiExtra.
+     . Logica Prezzo: prezzoBase + (1.0 euro * numeroIngredientiExtra).
+
+2. FACTORY PATTERN (Creazione):
+   - Classe 'CucinaFactory':
+     . Metodo statico: Piatto creaPiatto(String tipo, String nome, double prezzo, boolean infoMaxi, int infoIngr).
+     . Logica:
+       - Se tipo == "PIZZA" -> Restituisce new Pizza(...) usando 'infoMaxi'.
+       - Se tipo == "PANINO" -> Restituisce new Panino(...) usando 'infoIngr'.
+       - Nota: Questo accentra la creazione e pulisce il codice del Controller.
+
+3. ARCHITETTURA & STATO (Sessione):
+   - Classe 'Ordine' (Rappresenta la Sessione/Carrello):
+     . Attributi: idOrdine, List<Piatto> carrello.
+     . Metodo: aggiungiPiatto(Piatto p).
+     . Metodo: calcolaTotale() -> Itera sulla lista e somma i getPrezzoFinale().
+     . Metodo: getScontrino() -> Restituisce una Stringa lunga con l'elenco dei piatti e il totale.
+
+4. CONTROLLER & BEAN (Gestione):
+   - DTO 'PiattoBean':
+     . Contiene tutti i dati grezzi necessari per creare un piatto (tipo, nome, prezzo, isMaxi, numIngredienti).
+   - Boundary 'AppDelivery':
+        . Attributo: 'DeliveryController controller'.
+        . Costruttore: accetta il controller come parametro (Dependency Injection).
+        . Metodo: void selezionaPiatto(String tipo, String nome, double prezzo, boolean maxi, int ingr)
+          1. Incapsula i parametri primitivi in un nuovo oggetto 'PiattoBean'.
+          2. Chiama controller.aggiungiAlCarrello(bean).
+        . Metodo: void checkout() -> chiama controller.confermaOrdine().
+   - Controller 'DeliveryController':
+     . SINGLETON.
+     . Attributo: Ordine ordineCorrente (lo stato della sessione).
+     . Metodo: nuovaSessione() -> inizializza un nuovo Ordine vuoto.
+     . Metodo: aggiungiAlCarrello(PiattoBean bean) ->
+       1. Usa CucinaFactory per trasformare il Bean in un Piatto.
+       2. Aggiunge il Piatto all'ordineCorrente.
+     . Metodo: confermaOrdine() ->
+       1. Recupera il testo dello scontrino dall'Ordine.
+       2. Chiama un metodo privato salvaSuFile(String testo).
+
+5. PERSISTENZA:
+   - Il metodo salvaSuFile del Controller deve scrivere lo scontrino su "ricevuta_[idOrdine].txt".
+   - Usa BufferedWriter o FileWriter.
+
+ESECUZIONE (Main):
+- Ottieni il Controller.
+- Avvia nuovaSessione().
+- Simula l'utente che ordina tramite una Boundary (o direttamente col Controller per brevità):
+  . Aggiunge una Pizza "Margherita" (Base: 5.0, Maxi: false).
+  . Aggiunge una Pizza "Diavola" (Base: 6.0, Maxi: true -> Prezzo atteso 7.2).
+  . Aggiunge un Panino "Burger" (Base: 8.0, Extra: 2 -> Prezzo atteso 10.0).
+- Conferma Ordine.
+- VERIFICA: Controlla che il file "ricevuta_....txt" esista e che il totale sia corretto (5.0 + 7.2 + 10.0 = 22.2).

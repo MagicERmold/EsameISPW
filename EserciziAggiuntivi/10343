@@ -1,0 +1,103 @@
+***************************************************************************
+* ESERCIZI DI RIEPILOGO - JAVA & DESIGN PATTERNS        *
+***************************************************************************
+
+Questa cartella contiene 3 esercitazioni progettate per mettere in pratica
+tutti i concetti appresi, dai fondamenti OOP ai Design Patterns avanzati.
+
+CONTENUTO:
+1. Tre sottocartelle (Scenario 1, 2 e 3), ognuna contenente:
+   - Il testo della traccia (che descrive i requisiti).
+   - La mia soluzione proposta (codice Java completo).
+
+NOTA BENE:
+Il testo delle tracce va preso come una linea guida per i requisiti.
+L'obiettivo non è copiare meccanicamente, ma ragionare su "chi fa cosa" 
+applicando rigorosamente i pattern e le regole architetturali descritte qui sotto.
+ATTENZIONE: a volte gemini potrebbe aver scritto male il testo, quindi se dubitate
+di qualsiasi cosa abbia scritto e pensate sempre se quello che stiamo facendo ha senso
+e segue le regole qui sotto elencate.
+
+===========================================================================
+                        LE "REGOLE D'ORO" DA SEGUIRE
+===========================================================================
+
+1. METODI vs FUNZIONI (COMMAND-QUERY SEPARATION)
+   - I METODI servono a modificare lo stato di un oggetto o eseguire un'azione.
+     Devono essere sempre di tipo 'void'.
+   - Le FUNZIONI (o Getter/Calcolatori) servono a restituire un valore o un'informazione.
+     Sono gli unici che possono avere un tipo di ritorno diverso da void.
+
+2. INCAPSULAMENTO (VISIBILITÀ)
+   Indica chi può accedere a una classe, metodo o variabile:
+   - PUBLIC (+): Accessibile da CHIUNQUE (tutto il progetto).
+   - PRIVATE (-): Accessibile ESCLUSIVAMENTE all'interno della classe stessa.
+     (Regola: Tutti gli attributi delle classi devono essere private).
+   - PROTECTED (#): Accessibile dalla classe stessa, dalle sue sottoclassi e 
+     dalle classi nello stesso package.
+
+3. STATIC vs FINAL
+   - STATIC: Indica che un attributo o un metodo appartiene alla CLASSE e non 
+     alla singola istanza. È condiviso da tutti gli oggetti (es. Singleton, contatori globali).
+     Attenzione: Non abusarne per evitare problemi di gestione stato.
+   - FINAL:
+     . Su variabili: Il valore è una costante e non può essere modificato.
+     . Su metodi: Il metodo non può essere sovrascritto (override) dalle sottoclassi.
+     . Su classi: La classe non può avere figli (ereditarietà vietata).
+
+4. CLASSI vs ISTANZE
+   - CLASSE: È il modello, lo stampino, la definizione astratta (il file .java).
+   - ISTANZA: È l'oggetto concreto creato in memoria (usando 'new').
+
+5. POLIMORFISMO & BINDING DINAMICO
+   La capacità di un oggetto di assumere più forme.
+   - Posso usare un riferimento della superclasse (es. 'Veicolo') per puntare 
+     a un oggetto della sottoclasse (es. 'Auto').
+   - Al momento dell'esecuzione (Runtime), Java capirà quale versione del metodo 
+     eseguire (quello di Auto o quello di Veicolo) -> Late Binding.
+
+6. PRINCIPIO DI SOSTITUIBILITÀ DI LISKOV (LSP)
+   Le sottoclassi devono essere sostituibili alle loro classi base senza rompere
+   il funzionamento del programma.
+   - Se il codice si aspetta un 'Veicolo', deve funzionare correttamente sia 
+     se gli passo un'Auto, sia se gli passo una Moto, senza dover fare controlli 
+     specifici (if tipo == Auto...).
+
+===========================================================================
+                        ARCHITETTURA & PATTERN
+===========================================================================
+
+7. ARCHITETTURA BCE (BOUNDARY - CONTROL - ENTITY)
+   È lo schema per separare le responsabilità:
+   - BOUNDARY (View): Gestisce l'interazione con l'utente (Input/Output). 
+     Crea i Bean e chiama il Controller. NON fa logica di business.
+   - CONTROL (Controller): Gestisce il flusso e la logica applicativa. 
+     Collega la Boundary alle Entity. Spesso è un Singleton.
+   - ENTITY (Model): Rappresenta i dati del dominio (es. Utente, Piatto).
+     Contiene la logica dei dati (es. calcolo prezzi).
+   - DTO/BEAN: Oggetti semplici (solo attributi privati + getter/setter) usati 
+     per trasportare i dati tra Boundary e Controller.
+
+8. PATTERN GOF (GANG OF FOUR) UTILIZZATI
+   - SINGLETON (Creazionale): Garantisce che una classe (es. Controller) abbia 
+     una sola istanza e fornisce un punto di accesso globale (getInstance).
+   - FACTORY METHOD (Creazionale): Centralizza la creazione di oggetti complessi.
+     Il client non fa "new Pizza()", ma chiede alla Factory "creami una Pizza".
+   - OBSERVER (Comportamentale): Definisce una dipendenza uno-a-molti. 
+     Quando un oggetto cambia stato (Subject), notifica automaticamente tutti 
+     gli altri interessati (Observers).
+
+9. PRINCIPI GRASP (GENERALE)
+   - CREATOR: Chi crea un oggetto A? Chi lo contiene o lo aggrega.
+   - INFORMATION EXPERT: Chi deve eseguire un metodo? La classe che possiede 
+     i dati necessari per farlo.
+
+10. PERSISTENZA & I/O
+    - SERIALIZZAZIONE: Trasformare un oggetto in byte per salvarlo (implements Serializable).
+      Ricorda: le variabili 'static' NON vengono serializzate.
+    - DAO (Data Access Object): Pattern per nascondere i dettagli del salvataggio 
+      (File o DB) al resto dell'applicazione.
+    - STREAMS: Usare sempre il blocco 'try-with-resources' per garantire che i file 
+      vengano chiusi correttamente dopo l'uso.
+
+Buono studio e buon codice!

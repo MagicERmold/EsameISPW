@@ -1,0 +1,47 @@
+SIMULAZIONE D'ESAME 1: SMART PARKING SYSTEM
+
+OBIETTIVO:
+Progettare un sistema per la gestione di un parcheggio automatizzato.
+Il sistema deve gestire l'ingresso di veicoli diversi, calcolare la tariffa in base al tipo di veicolo e salvare un "Ticket" digitale su file.
+
+REQUISITI ARCHITETTURALI E PATTERN:
+
+1. ENTITY & POLIMORFISMO (Il Dominio):
+   - Classe Astratta 'Veicolo':
+     . Attributi: targa (String), orarioIngresso (int, simula l'ora es. 9, 14).
+     . Metodo Astratto: double calcolaTariffa(int orarioUscita).
+   - Sottoclasse 'Auto':
+     . Tariffa: 2.0 euro per ogni ora di permanenza.
+   - Sottoclasse 'Moto':
+     . Tariffa: 1.0 euro per ogni ora di permanenza.
+   - Classe 'Ticket' (Serializable):
+     . Rappresenta la ricevuta finale.
+     . Attributi: targa, totaleDaPagare.
+     . Deve essere serializzabile per il salvataggio.
+
+2. DAO PATTERN (Persistenza):
+   - Interfaccia 'TicketDAO': metodo void salvaTicket(Ticket t).
+   - Implementazione 'FileTicketDAO':
+     . Salva l'oggetto Ticket serializzato in un file chiamato "ticket_[targa].dat".
+
+3. ARCHITETTURA BCE & DTO:
+   - DTO 'IngressoBean':
+     . Contiene i dati grezzi inseriti dall'utente: targa, tipoVeicolo ("AUTO" o "MOTO"), orarioIngresso, orarioUscita.
+   - Boundary 'TotemIngresso':
+     . Metodo: void gestisciUscita(String targa, String tipo, int in, int out).
+     . Crea il Bean e chiama il Controller.
+   - Controller 'ParcheggioController':
+     . Deve essere un SINGLETON (Unica istanza nel sistema).
+     . Metodo: void elaboraPagamento(IngressoBean dati).
+
+4. LOGICA DI BUSINESS (Il cuore del problema):
+   Dentro il metodo 'elaboraPagamento' del Controller, devi svolgere i seguenti passi (rispettando GRASP):
+   A. FACTORY LOGIC (Creator): In base alla stringa "tipo" del Bean, istanzia il veicolo corretto (Auto o Moto).
+   B. INFORMATION EXPERT: Chi calcola il costo? Il Veicolo stesso (usando il polimorfismo). Il Controller chiede al veicolo: v.calcolaTariffa(...).
+   C. PERSISTENZA: Creare un oggetto Ticket con il risultato e usare il DAO per salvarlo.
+
+ESECUZIONE (Main):
+- Ottieni l'istanza del Controller (Singleton).
+- Simula l'ingresso di un'Auto (targa "AA123BB", entrata 10, uscita 14).
+- Simula l'ingresso di una Moto (targa "MOTO1", entrata 10, uscita 12).
+- Verifica che siano stati creati i file "ticket_AA123BB.dat" e "ticket_MOTO1.dat".

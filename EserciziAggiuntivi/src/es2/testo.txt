@@ -1,0 +1,53 @@
+SIMULAZIONE D'ESAME 2: SISTEMA ASTE ONLINE
+
+OBIETTIVO:
+Progettare il backend di un sistema di aste online.
+Il sistema deve gestire le offerte degli utenti in tempo reale: quando viene superata l'offerta attuale, tutti i partecipanti interessati devono essere notificati immediatamente (Observer Pattern). Inoltre, ogni offerta valida deve essere storicizzata su un file di log.
+
+REQUISITI ARCHITETTURALI E PATTERN:
+
+1. PATTERN OBSERVER (Gestione Notifiche):
+   - Interfaccia 'OsservatoreAsta':
+     . Metodo: void aggiorna(String messaggio).
+   - Classe 'Partecipante' (Concrete Observer):
+     . Attributi: nome.
+     . Implementa 'aggiorna': stampa a video "[Nome] ha ricevuto notifica: [messaggio]".
+   - Classe 'Asta' (Subject & Entity):
+     . Attributi: idAsta, prezzoAttuale, migliorOfferente (String), listaOsservatori.
+     . Metodi per gestire la lista: iscrivi(OsservatoreAsta o), disiscrivi(...).
+     . Metodo 'gestisciOfferta(String nomeOfferente, double importo)':
+       Se importo > prezzoAttuale:
+          1. Aggiorna prezzo e miglior offerente.
+          2. Notifica TUTTI gli iscritti: "Nuovo record! [Nome] ha offerto [Importo]".
+          3. Restituisce 'true'.
+       Altrimenti:
+          1. Restituisce 'false' (offerta troppo bassa).
+
+2. ARCHITETTURA BCE & DTO:
+   - DTO 'OffertaBean':
+     . Contiene: nomeUtente, idAsta, importoOfferto.
+   - Boundary 'PortaleAste':
+     . Metodo: void inviaOfferta(String nome, int idAsta, double importo).
+     . Crea il Bean e chiama il Controller.
+   - Controller 'GestoreAste':
+     . Deve essere un SINGLETON.
+     . Mantiene una lista (o mappa) delle aste attive (simulazione DB).
+     . Metodo: void elaboraOfferta(OffertaBean dati).
+
+3. PERSISTENZA (Log Storico):
+   - Se l'offerta viene accettata dall'Asta, il Controller deve salvarla su un file "storico_aste.txt".
+   - REQUISITO I/O: Il file deve essere aperto in modalità APPEND (aggiunta), non sovrascrittura. Bisogna usare il costruttore `new FileWriter(file, true)`.
+
+ESECUZIONE (Main):
+- Setup:
+  . Ottieni il Controller (Singleton).
+  . Crea un'Asta (ID: 1, Prezzo Base: 100) e registrala nel Controller (magari con un metodo 'creaAsta' o aggiungendola manualmente se semplifichi).
+  . Crea 3 Partecipanti: "Mario", "Luigi", "Paolo".
+  . Iscrivili all'asta (Observer).
+- Azione:
+  . Mario offre 120 (Accettata -> Notifica a tutti -> Scrittura su file).
+  . Luigi offre 150 (Accettata -> Notifica a tutti -> Scrittura su file).
+  . Wario offre 140 (Rifiutata -> Nessuna notifica -> Nessuna scrittura).
+- Verifica:
+  . Controlla che a video appaiano le notifiche giuste.
+  . Controlla che il file "storico_aste.txt" contenga le due righe delle offerte valide.
